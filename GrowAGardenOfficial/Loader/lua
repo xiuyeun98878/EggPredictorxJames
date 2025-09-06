@@ -4,6 +4,7 @@ local collectionService = game:GetService("CollectionService")
 local TweenService = game:GetService("TweenService")
 local localPlayer = players.LocalPlayer or players:GetPlayers()[1]
 
+-- Color palette
 local BROWN_BG = Color3.fromRGB(118,61,25)
 local BROWN_LIGHT = Color3.fromRGB(164,97,43)
 local BROWN_BORDER = Color3.fromRGB(51,25,0)
@@ -17,6 +18,11 @@ local BUTTON_RED = Color3.fromRGB(255,62,62)
 local BUTTON_RED_HOVER = Color3.fromRGB(255,100,100)
 local FONT = Enum.Font.FredokaOne
 local TILE_IMAGE = "rbxassetid://15910695828"
+
+-- Subtle background pattern
+local SUBTLE_PATTERN = "rbxassetid://8992356373"
+local PATTERN_OVERLAY = Color3.fromRGB(255, 255, 255)
+local PATTERN_TRANSPARENCY = 0.93
 
 local eggChances = {
     ["Common Egg"] = { Dog=33, Bunny=33, ["Golden Lab"]=33 },
@@ -112,110 +118,204 @@ for _,e in collectionService:GetTagged("PetEggServer") do addESP(e) end
 collectionService:GetInstanceAddedSignal("PetEggServer"):Connect(addESP)
 collectionService:GetInstanceRemovedSignal("PetEggServer"):Connect(removeESP)
 
+-- Create main GUI
 local gui = Instance.new("ScreenGui", localPlayer:WaitForChild("PlayerGui"))
 gui.Name = "RandomizerStyledGUI"
 gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local main = Instance.new("Frame",gui)
-main.Size = UDim2.new(0,260,0,140)
-main.Position = UDim2.new(0.5,-130,0.5,-70)
+-- Main container with improved styling
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 300, 0, 180)
+main.Position = UDim2.new(0.5, -150, 0.5, -90)
 main.BackgroundColor3 = BROWN_BG
 main.Active = true
 main.Draggable = true
-Instance.new("UICorner",main).CornerRadius = UDim.new(0,10)
-Instance.new("UIStroke",main).Thickness = 2
-Instance.new("UIStroke",main).Color = BROWN_BORDER
-local bg = Instance.new("ImageLabel",main)
-bg.Size = UDim2.new(1,0,1,0)
-bg.Image = TILE_IMAGE
-bg.BackgroundTransparency = 1
-bg.ScaleType = Enum.ScaleType.Tile
-bg.TileSize = UDim2.new(0,96,0,96)
 
-local top = Instance.new("Frame",main)
-top.Size = UDim2.new(1,0,0,26)
+local mainCorner = Instance.new("UICorner", main)
+mainCorner.CornerRadius = UDim.new(0, 12)
+
+local mainStroke = Instance.new("UIStroke", main)
+mainStroke.Thickness = 3
+mainStroke.Color = BROWN_BORDER
+mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Background pattern
+local bgPattern = Instance.new("ImageLabel", main)
+bgPattern.Size = UDim2.new(1, 0, 1, 0)
+bgPattern.Image = SUBTLE_PATTERN
+bgPattern.ImageColor3 = PATTERN_OVERLAY
+bgPattern.ImageTransparency = PATTERN_TRANSPARENCY
+bgPattern.BackgroundTransparency = 1
+bgPattern.ScaleType = Enum.ScaleType.Tile
+bgPattern.TileSize = UDim2.new(0, 100, 0, 100)
+bgPattern.ZIndex = 1
+
+-- Header with gradient
+local top = Instance.new("Frame", main)
+top.Size = UDim2.new(1, 0, 0, 32)
 top.BackgroundColor3 = ACCENT_GREEN
 top.BorderSizePixel = 0
-Instance.new("UICorner",top).CornerRadius = UDim.new(0,10)
-local topImg = Instance.new("ImageLabel",top)
-topImg.Size = UDim2.new(1,0,1,0)
-topImg.Image = TILE_IMAGE
-topImg.BackgroundTransparency = 1
-topImg.ScaleType = Enum.ScaleType.Tile
-topImg.TileSize = UDim2.new(0,96,0,96)
-local title = Instance.new("TextLabel",top)
-title.Size = UDim2.new(1,-62,1,0)
-title.Position = UDim2.new(0,8,0,0)
+top.ZIndex = 2
+
+local topCorner = Instance.new("UICorner", top)
+topCorner.CornerRadius = UDim.new(0, 12)
+
+local topGradient = Instance.new("UIGradient", top)
+topGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, ACCENT_GREEN),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(90, 170, 80))
+}
+topGradient.Rotation = 90
+
+local title = Instance.new("TextLabel", top)
+title.Size = UDim2.new(1, -62, 1, 0)
+title.Position = UDim2.new(0, 12, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "Egg Randomizer By James"
-title.Font = FONT
-title.TextColor3 = Color3.new(1,1,1)
-title.TextStrokeTransparency = 0
+title.Text = "EGG RANDOMIZER"
+title.Font = Enum.Font.GothamBold
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextStrokeTransparency = 0.7
 title.TextScaled = true
 title.TextXAlignment = Enum.TextXAlignment.Left
-local btnX = Instance.new("TextButton",top)
-btnX.Size = UDim2.new(0,18,0,18)
-btnX.Position = UDim2.new(1,-25,0.5,-9)
+title.ZIndex = 3
+
+local subtitle = Instance.new("TextLabel", top)
+subtitle.Size = UDim2.new(1, -62, 0, 12)
+subtitle.Position = UDim2.new(0, 12, 0, 18)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "By James"
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextSize = 12
+subtitle.TextColor3 = Color3.fromRGB(240, 240, 240)
+subtitle.TextStrokeTransparency = 0.8
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+subtitle.ZIndex = 3
+
+-- Close button with improved styling
+local btnX = Instance.new("TextButton", top)
+btnX.Size = UDim2.new(0, 24, 0, 24)
+btnX.Position = UDim2.new(1, -30, 0.5, -12)
 btnX.BackgroundColor3 = BUTTON_RED
-btnX.Text = "X"
-btnX.Font = FONT
-btnX.TextColor3 = Color3.new(1,1,1)
-btnX.TextScaled = true
+btnX.Text = "×"
+btnX.Font = Enum.Font.GothamBold
+btnX.TextColor3 = Color3.new(1, 1, 1)
+btnX.TextSize = 20
 btnX.TextStrokeTransparency = 0.3
-btnX.MouseEnter:Connect(function() btnX.BackgroundColor3 = BUTTON_RED_HOVER end)
-btnX.MouseLeave:Connect(function() btnX.BackgroundColor3 = BUTTON_RED end)
-btnX.MouseButton1Click:Connect(function() gui:Destroy() end)
+btnX.ZIndex = 3
 
-local content = Instance.new("Frame",main)
+local btnXCorner = Instance.new("UICorner", btnX)
+btnXCorner.CornerRadius = UDim.new(1, 0)
+
+btnX.MouseEnter:Connect(function() 
+    btnX.BackgroundColor3 = BUTTON_RED_HOVER 
+    local tween = TweenService:Create(btnX, TweenInfo.new(0.2), {Size = UDim2.new(0, 26, 0, 26)})
+    tween:Play()
+end)
+
+btnX.MouseLeave:Connect(function() 
+    btnX.BackgroundColor3 = BUTTON_RED 
+    local tween = TweenService:Create(btnX, TweenInfo.new(0.2), {Size = UDim2.new(0, 24, 0, 24)})
+    tween:Play()
+end)
+
+btnX.MouseButton1Click:Connect(function() 
+    gui:Destroy() 
+end)
+
+-- Content area
+local content = Instance.new("Frame", main)
 content.Name = "ContentFrame"
-content.Size = UDim2.new(1,-8,1,-50)
-content.Position = UDim2.new(0,4,0,32)
+content.Size = UDim2.new(1, -16, 1, -52)
+content.Position = UDim2.new(0, 8, 0, 36)
 content.BackgroundTransparency = 1
+content.ZIndex = 2
 
+-- Button creation function with improved styling
 local function updateStop(btn)
     btn.BackgroundColor3 = autoStopOn and BUTTON_GREEN or BUTTON_RED
     btn.Text = "[A] Auto Stop: " .. (autoStopOn and "ON" or "OFF")
 end
 
-local function makeBtn(txt,y,c,h,ond,offd)
-    local b = Instance.new("TextButton",content)
-    b.Size = UDim2.new(0.9,0,0,26)
-    b.Position = UDim2.new(0.05,0,0,y)
-    b.BackgroundColor3 = c
-    b.Text = txt
-    b.Font = FONT
-    b.TextColor3 = Color3.new(1,1,1)
-    b.TextScaled = true
-    b.TextStrokeTransparency = 0.25
-    Instance.new("UICorner",b).CornerRadius = UDim.new(0,7)
-    Instance.new("UIStroke",b).Color = BROWN_BORDER
-    b.MouseEnter:Connect(function() if ond then ond(b) else b.BackgroundColor3 = h end end)
-    b.MouseLeave:Connect(function() if offd then offd(b) else b.BackgroundColor3 = c end end)
-    return b
+local function makeButton(txt, yPos, color, hoverColor, onClick)
+    local button = Instance.new("TextButton", content)
+    button.Size = UDim2.new(1, 0, 0, 32)
+    button.Position = UDim2.new(0, 0, 0, yPos)
+    button.BackgroundColor3 = color
+    button.Text = txt
+    button.Font = Enum.Font.GothamSemibold
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.TextSize = 14
+    button.TextStrokeTransparency = 0.25
+    button.ZIndex = 3
+    
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 8)
+    
+    local buttonStroke = Instance.new("UIStroke", button)
+    buttonStroke.Color = BROWN_BORDER
+    buttonStroke.Thickness = 2
+    
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = hoverColor
+        local tween = TweenService:Create(button, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(245, 245, 245)})
+        tween:Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = color
+        local tween = TweenService:Create(button, TweenInfo.new(0.2), {TextColor3 = Color3.new(1, 1, 1)})
+        tween:Play()
+    end)
+    
+    if onClick then
+        button.MouseButton1Click:Connect(onClick)
+    end
+    
+    return button
 end
 
-local stop = makeBtn("[A] Auto Stop: OFF",0,BUTTON_RED,BUTTON_RED_HOVER,
-    function(b) b.BackgroundColor3 = autoStopOn and BUTTON_GREEN_HOVER or BUTTON_RED_HOVER end,
-    function(b) updateStop(b) end)
-stop.MouseButton1Click:Connect(function() autoStopOn = not autoStopOn; updateStop(stop) end)
+-- Create buttons with improved spacing
+local stopButton = makeButton("[A] Auto Stop: OFF", 0, BUTTON_RED, BUTTON_RED_HOVER, function()
+    autoStopOn = not autoStopOn
+    updateStop(stopButton)
+end)
 
-local reroll = makeBtn("[B] Reroll Pet Display",32,BUTTON_BLUE,BUTTON_BLUE_HOVER)
-reroll.MouseButton1Click:Connect(function()
-    for _,data in pairs(displayedEggs) do
+local rerollButton = makeButton("[B] Reroll Pet Display", 38, BUTTON_BLUE, BUTTON_BLUE_HOVER, function()
+    for _, data in pairs(displayedEggs) do
         local pet = getNonRepeatingRandomPet(data.eggName, data.lastPet)
         if pet and data.label then
-            data.label.Text = data.eggName.." | "..pet
+            data.label.Text = data.eggName .. " | " .. pet
             data.lastPet = pet
         end
     end
 end)
 
-local footer = Instance.new("TextLabel",main)
-footer.Size = UDim2.new(1,-10,0,16)
-footer.Position = UDim2.new(0,5,1,-18)
+local infoButton = makeButton("[?] Info", 76, BUTTON_GRAY, Color3.fromRGB(210, 210, 210), function()
+    print("Egg Randomizer Info: This tool shows randomized pet names for your eggs!")
+end)
+
+-- Footer with subtle styling
+local footer = Instance.new("TextLabel", main)
+footer.Size = UDim2.new(1, -10, 0, 16)
+footer.Position = UDim2.new(0, 5, 1, -20)
 footer.BackgroundTransparency = 1
-footer.Text = "Made by Kuni"
-footer.Font = FONT
-footer.TextColor3 = Color3.new(1,1,1)
-footer.TextStrokeTransparency = 0.5
-footer.TextScaled = true
+footer.Text = "Made by James • v1.0"
+footer.Font = Enum.Font.Gotham
+footer.TextSize = 12
+footer.TextColor3 = Color3.fromRGB(220, 220, 220)
+footer.TextStrokeTransparency = 0.7
+footer.ZIndex = 2
+
+-- Add a subtle shadow effect
+local shadow = Instance.new("ImageLabel", gui)
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.8
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceScale = 0.05
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.Size = UDim2.new(0, 310, 0, 190)
+shadow.Position = UDim2.new(0.5, -155, 0.5, -95)
+shadow.BackgroundTransparency = 1
+shadow.ZIndex = -1
